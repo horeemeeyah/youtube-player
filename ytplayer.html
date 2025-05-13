@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>hori's youtube player</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;700&display=swap');
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      font-family: "Comic Sans MS", "Comic Sans", cursive;
+      text-align: center;
+      background-image: url('https://lh3.googleusercontent.com/pw/AP1GczOT1PPgEKST946mz2kvTqAlOlVfqY_AUUsd0JOgDLHnGTVmccb5RfAI3zrwTXkWUQsWf4a-ul4KMstPjTqN8wzV_FBBW1NCV6uX85ePoOq5LDdred4k3zlFDSRweHpigVa8VYvkgY2CF5dT6_PShIJk=w626-h417-s-no?authuser=0');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+    }
+    h1 {
+      color: white;
+    }
+    input {
+      width: 80%;
+      max-width: 600px;
+      padding: 10px;
+      font-size: 16px;
+      font-family: "Comic Sans MS", "Comic Sans", cursive;
+      background-color: black;
+      color: white;
+      border: 1px solid white;
+      border-radius: 4px;
+      margin-bottom: 20px;
+    }
+    #player-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    #player {
+      width: 640px;
+      height: 360px;
+    }
+    #feedback-button, #playlists-button, #add-to-playlists-button, #recycle-bin-button {
+      background-color: transparent;
+      border: 1px solid white;
+      color: white;
+      font-family: "Comic Sans MS", "Comic Sans", cursive;
+      padding: 10px;
+      text-decoration: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    #feedback-button {
+      position: absolute;
+      bottom: 10px;
+      left: 10px;
+    }
+    #playlists-button {
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+    }
+    #add-to-playlists-button {
+      margin-top: 20px;
+    }
+    #dim-background {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      display: none;
+      z-index: 999;
+    }
+    #playlists-modal {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 75%;
+      height: 75%;
+      background-image: url('https://lh3.googleusercontent.com/pw/AP1GczOT1PPgEKST946mz2kvTqAlOlVfqY_AUUsd0JOgDLHnGTVmccb5RfAI3zrwTXkWUQsWf4a-ul4KMstPjTqN8wzV_FBBW1NCV6uX85ePoOq5LDdred4k3zlFDSRweHpigVa8VYvkgY2CF5dT6_PShIJk=w626-h417-s-no?authuser=0');
+      font-family: "Ubuntu", sans-serif;
+      border-radius: 8px;
+      z-index: 1000;
+      display: none;
+      overflow-y: auto;
+      padding: 20px;
+    }
+    #playlists-modal h2 {
+      color: white;
+    }
+    .playlist-item {
+      margin: 10px;
+      padding: 10px;
+      color: white;
+      border: 1px solid white;
+      cursor: pointer;
+      font-family: "Ubuntu", sans-serif;
+      border-radius: 4px;
+    }
+    .playlist-item:hover {
+      background-color: rgb(145, 145, 145);
+    }
+    #recycle-bin-button, #settings-button {
+      position: absolute;
+      z-index: 1001;
+    }
+    #recycle-bin-button {
+      bottom: 10px;
+      left: 10px;
+      background-color: darkred;
+      color: white;
+      border: none;
+      padding: 10px;
+      font-family: "Comic Sans MS", "Comic Sans", cursive;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+    #recycle-bin-button:hover {
+      background-color: maroon;
+    }
+    #settings-modal {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 75%;
+      height: 75%;
+      background-image: url('https://lh3.googleusercontent.com/pw/AP1GczOT1PPgEKST946mz2kvTqAlOlVfqY_AUUsd0JOgDLHnGTVmccb5RfAI3zrwTXkWUQsWf4a-ul4KMstPjTqN8wzV_FBBW1NCV6uX85ePoOq5LDdred4k3zlFDSRweHpigVa8VYvkgY2CF5dT6_PShIJk=w626-h417-s-no?authuser=0');
+      font-family: "Ubuntu", sans-serif;
+      border-radius: 8px;
+      z-index: 1000;
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+      padding: 20px;
+    }
+    #settings-modal h2 {
+      margin-bottom: 20px;
+      color: white;
+      font-size: 24px;
+      font-weight: bold;
+    }
+    #settings-modal .button-container {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+    }
+    #settings-modal button {
+      background-color: transparent;
+      border: 1px solid white;
+      color: white;
+      font-family: "Comic Sans MS", "Comic Sans", cursive;
+      padding: 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      width: 150px;
+    }
+    #settings-modal button:hover {
+      background-color: lightgray;
+    }
+    #delete-data-button {
+      background-color: rgb(139, 2, 2);
+    }
+    #delete-data-button:hover {
+      background-color: rgb(105, 0, 0);
+    }
+    #settings-button {
+      bottom: 10px;
+      right: 10px;
+      background-color: gray;
+      color: white;
+      border: none;
+      padding: 10px;
+      font-family: "Comic Sans MS", "Comic Sans", cursive;
+      cursor: pointer;
+      border-radius: 4px;
+      z-index: 1001;
+    }
+    #settings-button:hover {
+      background-color: darkgray;
+    }
+    /* Toast popup styles */
+    #toast-popup {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: rgba(0, 0, 0, 0.8);
+      color: white;
+      padding: 15px;
+      border-radius: 8px;
+      font-family: "Comic Sans MS", "Comic Sans", cursive;
+      font-size: 14px;
+      z-index: 1002;
+      display: none;
+    }
+    /* Minecraft-style greeting text with faster zoom animation */
+    #greeting-popup {
+      margin: 20px 0;
+      color: yellow;
+      font-family: "Comic Sans MS", "Comic Sans", cursive;
+      font-size: 20px;
+      font-weight: bold;
+      text-shadow: 1px 1px 2px black;
+      animation: zoom 3s infinite alternate; /* Decreased duration to 3s */
+    }
+
+    @keyframes zoom {
+      0% {
+        transform: scale(1);
+      }
+      100% {
+        transform: scale(1.2);
+      }
+    }
+  </style>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://www.youtube.com/iframe_api"></script>
+</head>
+<body>
+  <div id="dim-background"></div>
+  <div id="playlists-modal">
+    <h2>ur playlist</h2>
+    <div id="playlist-container"></div>
+    <button id="recycle-bin-button">trash playlist</button>
+    <button id="settings-button">settings</button>
+  </div>
+  <h1>hori's youtube player</h1>
+  <div id="greeting-popup"></div>
+  <input type="text" id="videoUrl" placeholder="enter a yt url (ex. https://www.youtube.com/watch?v=FtutLA63Cp8" oninput="embedVideo()">
+  <div id="player-container">
+    <div id="player"></div>
+    <button id="add-to-playlists-button">add to playlist</button>
+  </div>
+  <a id="feedback-button" href="uhhhhthisbuttondontworkaha.com" target="_blank">feedback / suggestions</a>
+  <button id="playlists-button">your playlist</button>
+  <script>
+    function setCookie(cname, cvalue, exdays) {
+      var d = new Date();
+      d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+      var expires = "expires=" + d.toUTCString();
+      document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+    }
+    function getCookie(cname) {
+      var name = cname + "=";
+      var ca = document.cookie.split(';');
+      for (var i = 0; i < ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0) == ' ') {
+          c = c.substring(1);
+        }
+        if (c.indexOf(name) == 0) {
+          return c.substring(name.length, c.length);
+        }
+      }
+      return "";
+    }
+    let playlistItems = [];
+    function loadPlaylistFromCookie() {
+      let cookie = getCookie("playlist");
+      if (cookie) {
+        try {
+          playlistItems = JSON.parse(cookie);
+          playlistItems.forEach(item => {
+            const playlistItem = document.createElement('div');
+            playlistItem.className = 'playlist-item';
+            playlistItem.textContent = item.details;
+            playlistItem.addEventListener('click', () => {
+              player.loadVideoById(item.videoId);
+            });
+            document.getElementById('playlist-container').appendChild(playlistItem);
+          });
+          if (playlistItems.length > 0) {
+            player.loadVideoById(playlistItems[0].videoId);
+          }
+        } catch (e) {
+          playlistItems = [];
+        }
+      }
+    }
+    const ytApiKey = "AIzaSyDPjNPx5-6FZYl7mrPleE1f4DnxnErdPEQ";
+    const playlistsButton = document.getElementById('playlists-button');
+    const dimBackground = document.getElementById('dim-background');
+    const playlistsModal = document.getElementById('playlists-modal');
+    const playlistContainer = document.getElementById('playlist-container');
+    const addToPlaylistsButton = document.getElementById('add-to-playlists-button');
+    const recycleBinButton = document.getElementById('recycle-bin-button');
+    let player;
+    function getVideoId(url) {
+      const regExp = /^.*(?:youtu\.be\/|v\/|u\/|embed\/|watch\?v=)([^#&?]*).*/;
+      const match = url ? url.match(regExp) : null;
+      return match ? match[1] : null;
+    }
+    function fetchVideoDetails(videoId, callback) {
+      $.get(`https://www.googleapis.com/youtube/v3/videos?part=snippet&id=${videoId}&key=${ytApiKey}`, function(data) {
+        if (data.items && data.items.length > 0) {
+          const title = data.items[0].snippet.title;
+          const author = data.items[0].snippet.channelTitle;
+          const restrictedKeywords = [
+            "r18",
+            "18+",
+            "porn",
+            "rule34",
+            "bluelock",
+            "hentai",
+            "sex"
+          ];
+          const lowerCaseTitle = title.toLowerCase();
+          if (restrictedKeywords.some(keyword => lowerCaseTitle.includes(keyword))) {
+            alert("video contains a blacklisted word/phrase");
+            callback(null);
+          } else {
+            callback(`${title} by ${author}`);
+          }
+        } else {
+          callback("404 not found");
+        }
+      }).fail(() => {
+        callback("404 not found");
+      });
+    }
+    function onYouTubeIframeAPIReady() {
+      player = new YT.Player('player', {
+        height: '360',
+        width: '640',
+        videoId: '',
+        events: {
+          'onStateChange': onPlayerStateChange
+        }
+      });
+    }
+    function onPlayerStateChange(event) {
+      if (event.data === YT.PlayerState.ENDED) {
+        playNextVideo();
+      }
+    }
+    function playNextVideo() {
+      if (playlistItems.length > 0) {
+        const currentVideoId = player.getVideoData().video_id;
+        const currentIndex = playlistItems.findIndex(item => item.videoId === currentVideoId);
+        const nextIndex = (currentIndex + 1) % playlistItems.length;
+        player.loadVideoById(playlistItems[nextIndex].videoId);
+      }
+    }
+    function embedVideo() {
+      const videoUrl = document.getElementById('videoUrl').value;
+      const videoId = getVideoId(videoUrl);
+      if (videoId) {
+        fetchVideoDetails(videoId, (details) => {
+          if (details) {
+            player.loadVideoById(videoId);
+          } else {
+            alert("please select a different video");
+          }
+        });
+      } else {
+	 alert('enter a valid yt video url');
+      }
+    }
+    addToPlaylistsButton.addEventListener('click', () => {
+      const videoUrl = document.getElementById('videoUrl').value;
+      const videoId = getVideoId(videoUrl);
+      if (videoId) {
+        fetchVideoDetails(videoId, (details) => {
+          if (details) {
+            const playlistItem = document.createElement('div');
+            playlistItem.className = 'playlist-item';
+            playlistItem.textContent = details;
+            playlistItem.addEventListener('click', () => {
+              player.loadVideoById(videoId);
+            });
+            playlistContainer.appendChild(playlistItem);
+            playlistItems.push({ videoId: videoId, details: details });
+            setCookie("playlist", JSON.stringify(playlistItems), 7);
+          }
+        });
+      }
+    });
+    playlistsButton.addEventListener('click', () => {
+      dimBackground.style.display = 'block';
+      playlistsModal.style.display = 'block';
+    });
+    dimBackground.addEventListener('click', () => {
+      dimBackground.style.display = 'none';
+      playlistsModal.style.display = 'none';
+    });
+    recycleBinButton.addEventListener('click', () => {
+      if (confirm('this cant be reversed, are you sure?')) {
+        playlistContainer.innerHTML = '';
+        playlistItems = [];
+        setCookie("playlist", "", -1);
+      }
+    });
+    
+    window.addEventListener('load', () => {
+      showGreeting();
+      loadBackgroundFromCookie();
+      loadPlaylistFromCookie();
+    });
+    document.addEventListener('DOMContentLoaded', () => {
+      const settingsModal = document.createElement('div');
+      settingsModal.id = 'settings-modal';
+      settingsModal.innerHTML = `
+        <h2>settings</h2>
+        <div class="button-container">
+          <button id="change-background-button">change background</button>
+          <button id="delete-data-button">delete data</button>
+          <button id="tab-cloak-button">tab cloak</button>
+        </div>
+      `;
+      document.body.appendChild(settingsModal);
+
+      const dimBackground = document.getElementById('dim-background');
+      const settingsButton = document.getElementById('settings-button');
+
+      settingsButton.addEventListener('click', () => {
+        dimBackground.style.display = 'block';
+        settingsModal.style.display = 'flex';
+      });
+
+      dimBackground.addEventListener('click', () => {
+        dimBackground.style.display = 'none';
+        settingsModal.style.display = 'none';
+      });
+
+      document.getElementById('change-background-button').addEventListener('click', () => {
+        const newBackground = prompt("enter a image url: (very broken)");
+        if (newBackground) {
+          document.body.style.backgroundImage = `url('${newBackground}')`;
+          setCookie("background", newBackground, 7);
+          adjustTextColor(newBackground);
+        }
+      });
+
+      function loadBackgroundFromCookie() {
+        const savedBackground = getCookie("background");
+        if (savedBackground) {
+          document.body.style.backgroundImage = `url('${savedBackground}')`;
+          adjustTextColor(savedBackground);
+        }
+      }
+
+      function adjustTextColor(imageUrl) {
+        const img = new Image();
+        img.src = imageUrl;
+        img.crossOrigin = "Anonymous";
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
+          canvas.width = 1;
+          canvas.height = 1;
+          ctx.drawImage(img, 0, 0, 1, 1);
+          const [r, g, b] = ctx.getImageData(0, 0, 1, 1).data;
+          const brightness = (r * 0.299 + g * 0.587 + b * 0.114) / 255;
+          document.body.style.color = brightness > 0.5 ? 'black' : 'white';
+        };
+        img.onerror = () => {
+          alert("what the hell type of image did you give me?");
+        };
+      }
+
+      document.getElementById('delete-data-button').addEventListener('click', () => {
+        document.cookie.split(";").forEach(cookie => {
+          const name = cookie.split("=")[0].trim();
+          document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;`;
+        });
+        location.reload();
+      });
+
+      document.getElementById('tab-cloak-button').addEventListener('click', () => {
+        const link = document.createElement('link');
+        link.rel = 'icon';
+        link.href = 'https://www.google.com/favicon.ico';
+        document.head.appendChild(link);
+
+        document.title = 'Google';
+      });
+
+      loadBackgroundFromCookie();
+    });
+  </script>
+</body>
+</html>
